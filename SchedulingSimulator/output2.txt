@@ -4,65 +4,65 @@ First-Come-First-Serve (FCFS)
 Gantt Chart Visualization:
 | P1 | P2 | P3 | P4 | P5 | P6 |
 0    8    12   21   26   32   39
-
 Perfomance Metrics:
-Average Waiting Time: 19.667
-Average Turnaround Time: 26.167
-Average Normalized Turnaround Time: 3.889
-Average Response Time: 11.500
+Average Waiting Time: 14.000
+Average Turnaround Time: 20.500
+Average Normalized Turnaround Time: 3.331
+Average Response Time: 14.000
+
 
 Shortest Process Next (SPN)
 Gantt Chart Visualization:
 | P1 | P2 | P4 | P5 | P6 | P3 |
 0    8    12   17   23   30   39
-
 Perfomance Metrics:
-Average Waiting Time: 19.667
-Average Turnaround Time: 26.167
-Average Normalized Turnaround Time: 3.889
-Average Response Time: 11.500
+Average Waiting Time: 12.500
+Average Turnaround Time: 19.000
+Average Normalized Turnaround Time: 2.900
+Average Response Time: 12.500
+
 
 Shortest Remaining Time (SRT)
 Gantt Chart Visualization:
-| P1 | P2 | P4 | P5 | P1 | P6 | P3 |
+| P1 | P2 | P4 | P5 | P6 | P1 | P3 |
 0    1    5    10   16   23   30   39
-
 Perfomance Metrics:
-Average Waiting Time: 19.667
-Average Turnaround Time: 26.167
-Average Normalized Turnaround Time: 3.889
-Average Response Time: 11.500
+Average Waiting Time: 11.500
+Average Turnaround Time: 18.000
+Average Normalized Turnaround Time: 2.472
+Average Response Time: 7.833
+
 
 Round Robin (RR) (quantum = 3)
 Gantt Chart Visualization:
 | P1 | P2 | P3 | P4 | P1 | P5 | P6 | P2 | P3 | P4 | P1 | P5 | P6 | P3 | P6 |
 0    3    6    9    12   15   18   21   22   25   27   29   32   35   38   39
-
 Perfomance Metrics:
-Average Waiting Time: 19.667
-Average Turnaround Time: 26.167
-Average Normalized Turnaround Time: 3.889
-Average Response Time: 11.500
+Average Waiting Time: 22.167
+Average Turnaround Time: 28.667
+Average Normalized Turnaround Time: 4.533
+Average Response Time: 7.000
+
 
 Round Robin (RR) (quantum = 5)
 Gantt Chart Visualization:
-| P1 | P2 | P3 | P4 | P1 | P5 | P6 | P2 | P3 | P4 | P1 | P5 | P6 | P3 | P6 |
-0    3    6    9    12   15   18   21   22   25   27   29   32   35   38   39
-
+| P1 | P2 | P3 | P4 | P5 | P6 | P1 | P3 | P5 | P6 |
+0    5    9    14   19   24   29   32   36   37   39
 Perfomance Metrics:
 Average Waiting Time: 19.667
 Average Turnaround Time: 26.167
 Average Normalized Turnaround Time: 3.889
 Average Response Time: 11.500
+
 
 Priority (Non-Preemptive)
 Gantt Chart Visualization:
 | P1 | P2 | P6 | P3 | P5 | P4 |
 0    8    12   19   28   34   39
-
 Perfomance Metrics:
-Average Waiting Time: 19.667
-Average Turnaround Time: 26.167
-Average Normalized Turnaround Time: 3.889
-Average Response Time: 11.500
+Average Waiting Time: 14.333
+Average Turnaround Time: 20.833
+Average Normalized Turnaround Time: 3.473
+Average Response Time: 14.333
+
 

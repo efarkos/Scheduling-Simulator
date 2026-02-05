@@ -4,65 +4,65 @@ First-Come-First-Serve (FCFS)
 Gantt Chart Visualization:
 |  P1 |  P2 |  P3 |  P4 |  P5 |  P6 |  P7 |  P8 |  P9 | P10 |
 0     8     12    21    26    29    35    40    47    51    55
-
 Perfomance Metrics:
-Average Waiting Time: 24.200
-Average Turnaround Time: 29.700
-Average Normalized Turnaround Time: 5.636
-Average Response Time: 12.600
+Average Waiting Time: 20.100
+Average Turnaround Time: 25.600
+Average Normalized Turnaround Time: 5.349
+Average Response Time: 20.100
+
 
 Shortest Process Next (SPN)
 Gantt Chart Visualization:
 |  P1 |  P5 |  P2 |  P9 | P10 |  P4 |  P7 |  P6 |  P8 |  P3 |
 0     8     11    15    19    23    28    33    39    46    55
-
 Perfomance Metrics:
-Average Waiting Time: 24.200
-Average Turnaround Time: 29.700
-Average Normalized Turnaround Time: 5.636
-Average Response Time: 12.600
+Average Waiting Time: 15.400
+Average Turnaround Time: 20.900
+Average Normalized Turnaround Time: 3.555
+Average Response Time: 15.400
+
 
 Shortest Remaining Time (SRT)
 Gantt Chart Visualization:
-|  P1 |  P2 |  P4 |  P5 |  P4 |  P9 | P10 |  P7 |  P6 |  P1 |  P8 |  P3 |
+|  P1 |  P2 |  P4 |  P5 |  P4 |  P9 | P10 |  P7 |  P6 |  P8 |  P1 |  P3 |
 0     1     5     6     9     13    17    21    26    32    39    46    55
-
 Perfomance Metrics:
-Average Waiting Time: 24.200
-Average Turnaround Time: 29.700
-Average Normalized Turnaround Time: 5.636
-Average Response Time: 12.600
+Average Waiting Time: 14.000
+Average Turnaround Time: 19.500
+Average Normalized Turnaround Time: 2.956
+Average Response Time: 9.900
+
 
 Round Robin (RR) (quantum = 5)
 Gantt Chart Visualization:
 |  P1 |  P2 |  P3 |  P4 |  P1 |  P5 |  P6 |  P7 |  P8 |  P9 |  P3 | P10 |  P6 |  P8 |
 0     5     9     14    19    22    25    30    35    40    44    48    52    53    55
-
 Perfomance Metrics:
-Average Waiting Time: 24.200
-Average Turnaround Time: 29.700
-Average Normalized Turnaround Time: 5.636
-Average Response Time: 12.600
+Average Waiting Time: 23.900
+Average Turnaround Time: 29.400
+Average Normalized Turnaround Time: 5.540
+Average Response Time: 11.100
+
 
 Round Robin (RR) (quantum = 7)
 Gantt Chart Visualization:
-|  P1 |  P2 |  P3 |  P4 |  P1 |  P5 |  P6 |  P7 |  P8 |  P9 |  P3 | P10 |  P6 |  P8 |
-0     5     9     14    19    22    25    30    35    40    44    48    52    53    55
-
+|  P1 |  P2 |  P3 |  P4 |  P5 |  P6 |  P1 |  P7 |  P8 |  P9 | P10 |  P3 |
+0     7     11    18    23    26    32    33    38    45    49    53    55
 Perfomance Metrics:
 Average Waiting Time: 24.200
 Average Turnaround Time: 29.700
 Average Normalized Turnaround Time: 5.636
 Average Response Time: 12.600
+
 
 Priority (Non-Preemptive)
 Gantt Chart Visualization:
-|  P1 |  P2 |  P7 |  P8 |  P5 | P10 |  P4 |  P6 |  P9 |  P3 |
-0     8     12    17    24    27    31    36    42    46    55
-
+|  P1 |  P2 |  P7 |  P8 |  P5 | P10 |  P6 |  P4 |  P9 |  P3 |
+0     8     12    17    24    27    31    37    42    46    55
 Perfomance Metrics:
-Average Waiting Time: 24.200
-Average Turnaround Time: 29.700
-Average Normalized Turnaround Time: 5.636
-Average Response Time: 12.600
+Average Waiting Time: 17.600
+Average Turnaround Time: 23.100
+Average Normalized Turnaround Time: 4.500
+Average Response Time: 17.600
+
 

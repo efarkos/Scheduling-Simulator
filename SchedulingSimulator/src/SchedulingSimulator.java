@@ -4,9 +4,11 @@ import java.io.PrintStream;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.PriorityQueue;
 import java.util.ListIterator;
 import java.util.Queue;
 import java.util.Scanner;
+import java.util.Collections;
 
 public class SchedulingSimulator {
     private static enum Mode {
@@ -31,112 +33,113 @@ public class SchedulingSimulator {
         "Round Robin (RR)",
         "Priority (Non-Preemptive)"
     };
-    public static void main (String[] args) throws Exception {
+
+    public static void main (String[] args) throws IOException, ParseException {
         System.out.println ("CPU Scheduling Algorithm Simulator");
 
         boolean doAnotherSim = true;
         ArrayList<Process> processes = new ArrayList<> ();
         ArrayList<GanttChart> charts = new ArrayList<> ();
-        Scanner fromKey = new Scanner (System.in);
-        Mode mode;
-
-        while (doAnotherSim) {
-            for (int i = 0; i < 5; i++) {
-                charts.add (null);
-            }
-
-            mode = Mode.INVALID;
-
-            System.out.println ("Select mode - \"i\" for user input, \"f\" for file");
-
-            while (mode == Mode.INVALID) {
-                System.out.print ("Enter \"i\" or \"f\": ");
-                mode = Mode.fromString (fromKey.nextLine());
-            }
-
-            if (mode == Mode.INPUT) {
-                inputProcessesFromKey (processes, fromKey);
-            } else {
-                System.out.print ("Enter file name: ");
-                String fileName = fromKey.nextLine ();
-                inputProcessesFromFile (processes, new Scanner (new File (fileName)));
-            }
-
-            sortProcesses (processes, 0, processes.size () - 1);
+        try (Scanner fromKey = new Scanner (System.in)) {
+            Mode mode;
             
-            byte selection;
-
             while (doAnotherSim) {
-                System.out.println ("\nSelect Scheduling Algorithm:");
-                for (int i = 0; i < 5; i++) {
-                    System.out.println ((i + 1) + ". " + algorithmNames[i]);
+                for (int i = 0; i < ALL - 1; i++) {
+                    charts.add (null);
                 }
-                System.out.println ("6. All");
-
-                System.out.print ("Enter your choice (1-6): ");
-                selection = Byte.parseByte (fromKey.nextLine ());
-
-                if (selection < 1 || selection > 6) {
-                    throw new IllegalArgumentException ("Number provided not within range (1-6)");
-                }
-
-                executeAlgorithm (processes, charts, selection, fromKey);
-
-                System.out.println();
                 
-                doAnotherSim = yesNoPrompt ("Run another simulation with the same processes?", fromKey);
-            }
-
-            if (mode == Mode.INPUT && yesNoPrompt ("Save inputted processes as a text file?", fromKey)) {
-                PrintStream toFile = createFileWriter (fromKey);
-                sortProcessesByID (processes, 0, processes.size () - 1);
-                toFile.println (processes.size ());
-
-                ListIterator<Process> it = processes.listIterator ();
-                Process p;
-
-                while (it.hasNext ()) {
-                    p = it.next ();
-                    toFile.print (p.getArrivalTime () + " ");
-                    toFile.print (p.getCPUBurst () + " ");
-                    toFile.print (p.getPriority ());
-                    if (it.hasNext ()) {
-                        toFile.println ();
+                mode = Mode.INVALID;
+                
+                System.out.println ("Select mode - \"i\" for user input, \"f\" for file");
+                
+                while (mode == Mode.INVALID) {
+                    System.out.print ("Enter \"i\" or \"f\": ");
+                    mode = Mode.fromString (fromKey.nextLine());
+                }
+                
+                if (mode == Mode.INPUT) {
+                    inputProcessesFromKey (processes, fromKey);
+                } else {
+                    System.out.print ("Enter file name: ");
+                    String fileName = fromKey.nextLine ();
+                    inputProcessesFromFile (processes, new Scanner (new File (fileName)));
+                }
+                
+                Collections.sort (processes);
+                
+                byte selection;
+                
+                while (doAnotherSim) {
+                    System.out.println ("\nSelect Scheduling Algorithm:");
+                    for (int i = 1; i < ALL; i++) {
+                        System.out.println ((i) + ". " + algorithmNames[i - 1]);
+                    }
+                    System.out.println ((ALL) + ". All");
+                    
+                    System.out.print ("Enter your choice (1-" + ALL + "): ");
+                    selection = Byte.parseByte (fromKey.nextLine ());
+                    
+                    if (selection < 1 || selection > 6) {
+                        throw new IllegalArgumentException ("Number provided not within range (1-" + ALL + ")");
+                    }
+                    
+                    executeAlgorithm (processes, charts, selection, fromKey);
+                    
+                    System.out.println();
+                    
+                    doAnotherSim = yesNoPrompt ("Run another simulation with the same processes?", fromKey);
+                }
+                
+                if (mode == Mode.INPUT && yesNoPrompt ("Save inputted processes as a text file?", fromKey)) {
+                    PrintStream toFile = createFileWriter (fromKey);
+                    Collections.sort (processes, (a, b) -> a.getID () - b.getID ());
+                    toFile.println (processes.size ());
+                    
+                    ListIterator<Process> it = processes.listIterator ();
+                    Process p;
+                    
+                    while (it.hasNext ()) {
+                        p = it.next ();
+                        toFile.print (p.getArrivalTime () + " ");
+                        toFile.print (p.getCPUBurst () + " ");
+                        toFile.print (p.getPriority ());
+                        if (it.hasNext ()) {
+                            toFile.println ();
+                        }
                     }
                 }
-            }
-
-            if (yesNoPrompt ("Save simulation results as a text file?", fromKey)) {
-                PrintStream toFile = createFileWriter (fromKey);
-                toFile.println ("Simulation Results");
-                toFile.println ();
-                for (int i = 0; i < 5; i++) {
-                    if (charts.get (i) != null) {
-                        toFile.print (algorithmNames[i]);
-                        if (i == 3) {
-                            toFile.printf (" (quantum = %d%s", charts.get (i).getQuantum (), ")");
-                        }
-                        toFile.println ();
-                        printAnalytics (charts.get (i), processes, toFile);
-                        toFile.println ();
-
-                        if (i == 3) {
-                            for (int j = 5; j < charts.size (); j++) {
-                                toFile.printf ("Round Robin (RR) (quantum = %d%s", charts.get (j).getQuantum (), ")");
-                                toFile.println ();
-                                printAnalytics (charts.get (i), processes, toFile);
-                                toFile.println ();
+                
+                if (yesNoPrompt ("Save simulation results as a text file?", fromKey)) {
+                    PrintStream toFile = createFileWriter (fromKey);
+                    toFile.println ("Simulation Results");
+                    toFile.println ();
+                    for (int i = 0; i < ALL - 1; i++) {
+                        if (charts.get (i) != null) {
+                            toFile.print (algorithmNames[i]);
+                            if (i == 3) {
+                                toFile.printf (" (quantum = %d%s", charts.get (i).getQuantum (), ")");
+                            }
+                            toFile.println ();
+                            printAnalytics (charts.get (i), toFile);
+                            toFile.println ();
+                            
+                            if (i == 3) {
+                                for (int j = ALL - 1; j < charts.size (); j++) {
+                                    toFile.printf ("Round Robin (RR) (quantum = %d%s", charts.get (j).getQuantum (), ")");
+                                    toFile.println ();
+                                    printAnalytics (charts.get (j), toFile);
+                                    toFile.println ();
+                                }
                             }
                         }
                     }
                 }
+                
+                doAnotherSim = yesNoPrompt ("Simulate another set of processes?", fromKey);
+                processes.clear ();
+                charts.clear ();
             }
-
-            doAnotherSim = yesNoPrompt ("Simulate another set of processes?", fromKey);
-            processes.clear ();
-            charts.clear ();
         }
-        fromKey.close ();
     }
 
     private static void inputProcessesFromKey (ArrayList<Process> processes, Scanner fromKey) {
@@ -293,81 +296,26 @@ public class SchedulingSimulator {
         return selection;
     }
 
-    private static void sortProcesses (ArrayList<Process> processes, int low, int high) {
-        if (low < high) {
-            int pi = partition (processes, low, high);
-            sortProcesses (processes, low, pi - 1);
-            sortProcesses (processes, pi + 1, high);
-        }
-    }
-
-    private static int partition (ArrayList<Process> processes, int low, int high) {
-        Process pivot = processes.get (high);
-        int i = low;
-        Process temp;
-
-        for (int j = low; j < high; j++) {
-            temp = processes.get (j);
-            if (temp.compareTo (pivot) < 1) {
-                processes.set (j, processes.get(i));
-                processes.set (i, temp);
-                i++;
-            }
-        }
-
-        processes.set (high, processes.get (i));
-        processes.set (i, pivot);
-
-        return i;
-    }
-
-    private static void sortProcessesByID (ArrayList<Process> processes, int low, int high) {
-        if (low < high) {
-            int pi = partitionByID (processes, low, high);
-            sortProcesses (processes, low, pi - 1);
-            sortProcesses (processes, pi + 1, high);
-        }
-    }
-
-    private static int partitionByID (ArrayList<Process> processes, int low, int high) {
-        Process pivot = processes.get (high);
-        int i = low;
-        Process temp;
-
-        for (int j = low; j < high; j++) {
-            temp = processes.get (j);
-            if (temp.getID () < pivot.getID ()) {
-                processes.set (j, processes.get(i));
-                processes.set (i, temp);
-                i++;
-            }
-        }
-
-        processes.set (high, processes.get (i));
-        processes.set (i, pivot);
-
-        return i;
-    }
-
-    private static void executeAlgorithm (ArrayList<Process> processes, ArrayList<GanttChart> charts, byte algorithm, Scanner fromKey) {
+    private static void executeAlgorithm (ArrayList<Process> processes, ArrayList<GanttChart> charts, byte alg, Scanner fromKey) {
         System.out.println();
         boolean runSim = false;
         GanttChart temp = null;
 
-        if (algorithm > 0 && algorithm < ALL && (charts.get (algorithm - 1) == null || algorithm == RR) ) {
+        if (alg > 0 && alg < ALL && (charts.get (alg - 1) == null || alg == RR)) {
             runSim = true;
 
-            switch (algorithm) {
-                case FCFS -> charts.set (FCFS - 1, fcfs (queueProcesses (processes)));
-                case SPN -> charts.set (SPN - 1, spn (queueProcesses (processes)));
-                case SRT -> charts.set (SRT - 1, srt (queueProcesses (processes)));
+            switch (alg) {
+                case FCFS, SPN, PRIO -> {
+                    charts.set (alg - 1, nonPreemptive (queueProcesses (processes), simQueue (alg), alg));
+                }
+                case SRT -> charts.set (SRT - 1, srt (queueProcesses (processes), simQueue (SRT)));
                 case RR -> {
-                    temp = rr (queueProcesses (processes), fromKey); 
+                    temp = rr (queueProcesses (processes), simQueue (RR), fromKey); 
                     if (charts.get (RR - 1) == null) {
                         charts.set (RR - 1, temp);
                     } else if (temp.getQuantum () != charts.get (RR - 1).getQuantum ()) {
                         boolean placedChart = false;
-                        int i = 5;
+                        int i = ALL;
                         while (!placedChart) {
                             if (i == charts.size ()) {
                                 charts.add (temp);
@@ -378,25 +326,24 @@ public class SchedulingSimulator {
                         }
                     }
                 }
-                case PRIO -> charts.set (PRIO - 1, priority (queueProcesses (processes)));
             }
-        } else if (algorithm == ALL) {
+        } else if (alg == ALL) {
             System.out.println ("Simulating algorithms in order...");
 
-            for (byte i = 1; i <= 5; i++) {
+            for (byte i = 1; i < ALL; i++) {
                 executeAlgorithm(processes, charts, i, fromKey);
             }
         }
         
-        if (algorithm > 0 && algorithm < ALL) {
+        if (alg > 0 && alg < ALL) {
             if (!runSim) {
-                System.out.print (algorithmNames[algorithm - 1]);
+                System.out.print (algorithmNames[alg - 1]);
             }
 
-            if (algorithm != RR) {
-                printAnalytics (charts.get (algorithm - 1), processes, System.out);
+            if (alg != RR) {
+                printAnalytics (charts.get (alg - 1), System.out);
             } else {
-                printAnalytics (temp, processes, System.out);
+                printAnalytics (temp, System.out);
             }
         }
     }
@@ -412,21 +359,32 @@ public class SchedulingSimulator {
         return processQueue;
     }
 
-    private static GanttChart fcfs (Queue<Process> processes) {
-        System.out.println ("Simulating FCFS algorithm...");
+    private static Queue<Process> simQueue (byte alg) {
+        Queue<Process> sim = null;
+
+        switch (alg) {
+            case FCFS, RR -> sim = new LinkedList<> ();
+            case SPN, SRT -> sim = new PriorityQueue<> ((a, b) -> a.getRemainingBurst () - b.getRemainingBurst ());
+            case PRIO -> sim = new PriorityQueue<> ((a, b) -> a.getPriority () - b.getPriority ());
+        }
+
+        return sim;
+    }
+
+    private static GanttChart nonPreemptive (Queue<Process> arriving, Queue<Process> pq, int alg) {
+        System.out.println ("Simulating " + algorithmNames[alg - 1] + " algorithm...");
         Process runningProcess = null;
-        Queue<Process> processQueue = new LinkedList<> ();
         GanttChart chart = new GanttChart (0);
 
         int tick = 0;
 
-        while (runningProcess != null || !processes.isEmpty () || !processQueue.isEmpty ()) {
-            while (!processes.isEmpty () && processes.peek ().getArrivalTime () == tick) {
-                processQueue.add (processes.poll ());
+        while (runningProcess != null || !arriving.isEmpty () || !pq.isEmpty ()) {
+            while (!arriving.isEmpty () && arriving.peek ().getArrivalTime () == tick) {
+                pq.add (arriving.poll ());
             }
 
-            if (runningProcess == null && !processQueue.isEmpty ()) {
-                runningProcess = processQueue.poll ();
+            if (runningProcess == null && !pq.isEmpty ()) {
+                runningProcess = pq.poll ();
                 runningProcess.receiveResponse (tick);
                 chart.addEntry (runningProcess.getID (), tick);
             }
@@ -437,9 +395,10 @@ public class SchedulingSimulator {
                 runningProcess.executeTick(tick);
 
                 if (runningProcess.isFinished()) {
+                    chart.addData (runningProcess);
                     runningProcess = null;
 
-                    if (processes.isEmpty() && processQueue.isEmpty()) {
+                    if (arriving.isEmpty() && pq.isEmpty()) {
                         chart.addEntry (-1, tick);
                     }
                 }
@@ -449,102 +408,30 @@ public class SchedulingSimulator {
         return chart;
     }
 
-    private static GanttChart spn (Queue<Process> processes) {
-        System.out.println ("Simulating SPN algorithm...");
-        Process runningProcess = null;
-        LinkedList<Process> processQueue = new LinkedList<> ();
-        GanttChart chart = new GanttChart (0);
-
-        int tick = 0;
-
-        int i = 0;
-        Process temp;
-        ListIterator<Process> it;
-
-        while (runningProcess != null || !processes.isEmpty () || !processQueue.isEmpty ()) {
-            while (!processes.isEmpty () && processes.peek ().getArrivalTime () == tick) {
-                temp = processes.poll ();
-                it = processQueue.listIterator ();
-
-                while (it.hasNext () && temp.cpuBurst >= it.next ().cpuBurst) {
-                    i++;
-                }
-
-                it = processQueue.listIterator ();
-
-                while (i > 0) {
-                    it.next ();
-                    i--;
-                }
-
-                it.add (temp);
-            }
-
-            if (runningProcess == null && !processQueue.isEmpty ()) {
-                runningProcess = processQueue.poll ();
-                runningProcess.receiveResponse (tick);
-                chart.addEntry (runningProcess.getID (), tick);
-            }
-
-            tick++;
-
-            if (runningProcess != null) {
-                runningProcess.executeTick(tick);
-
-                if (runningProcess.isFinished()) {
-                    runningProcess = null;
-
-                    if (processes.isEmpty() && processQueue.isEmpty()) {
-                        chart.addEntry (-1, tick);
-                    }
-                }
-            }
-        }
-
-        return chart;
-    }
-
-    private static GanttChart srt (Queue<Process> processes) {
+    private static GanttChart srt (Queue<Process> arriving, Queue<Process> pq) {
         System.out.println ("Simulating SRT algorithm...");
         Process runningProcess = null;
-        LinkedList<Process> processQueue = new LinkedList<> ();
         GanttChart chart = new GanttChart (0);
 
         int tick = 0;
 
-        int i = 0;
         Process temp;
-        ListIterator<Process> it;
 
-        while (runningProcess != null || !processes.isEmpty () || !processQueue.isEmpty ()) {
-            while (!processes.isEmpty () && processes.peek ().getArrivalTime () == tick) {
-                temp = processes.poll ();
-                if (runningProcess != null && temp.getRemainingBurst () < runningProcess.getRemainingBurst ()) {
-                    processQueue.add (0, runningProcess);
-                    runningProcess = temp;
-                    chart.addEntry (temp.getID (), tick);
-                } else {
-                    it = processQueue.listIterator ();
-
-                    while (it.hasNext () && temp.getRemainingBurst () >= it.next ().getRemainingBurst ()) {
-                        i++;
-                    }
-
-                    it = processQueue.listIterator ();
-
-                    while (i > 0) {
-                        it.next ();
-                        i--;
-                    }
-
-                    it.add (temp);
-                }
+        while (runningProcess != null || !arriving.isEmpty () || !pq.isEmpty ()) {
+            while (!arriving.isEmpty () && arriving.peek ().getArrivalTime () == tick) {
+                pq.add (arriving.poll ());
             }
 
-            if (runningProcess == null && !processQueue.isEmpty ()) {
-                runningProcess = processQueue.poll ();
+            if (!pq.isEmpty () &&
+                (runningProcess == null || runningProcess.getRemainingBurst() > pq.peek ().getRemainingBurst ())
+            ) {
+                temp = runningProcess;
+                runningProcess = pq.poll ();
                 runningProcess.receiveResponse (tick);
                 chart.addEntry (runningProcess.getID (), tick);
+                if (temp != null) {
+                    pq.add (temp);
+                }
             }
 
             tick++;
@@ -553,9 +440,10 @@ public class SchedulingSimulator {
                 runningProcess.executeTick(tick);
 
                 if (runningProcess.isFinished()) {
+                    chart.addData (runningProcess);
                     runningProcess = null;
 
-                    if (processes.isEmpty() && processQueue.isEmpty()) {
+                    if (arriving.isEmpty() && pq.isEmpty()) {
                         chart.addEntry (-1, tick);
                     }
                 }
@@ -565,7 +453,7 @@ public class SchedulingSimulator {
         return chart;
     }
 
-    private static GanttChart rr (Queue<Process> processes, Scanner fromKey) {
+    private static GanttChart rr (Queue<Process> arriving, Queue<Process> pq, Scanner fromKey) {
         System.out.print ("Enter time quantum for RR algorithm: ");
 
         final int quantum = Integer.parseInt (fromKey.nextLine ());
@@ -578,30 +466,29 @@ public class SchedulingSimulator {
         System.out.printf ("Simulating RR algorithm (quantum = %d%s", quantum, ")...");
         System.out.println ();
         Process runningProcess = null;
-        Queue<Process> processQueue = new LinkedList<> ();
         GanttChart chart = new GanttChart (quantum);
 
         int tick = 0;
 
-        while (runningProcess != null || !processes.isEmpty () || !processQueue.isEmpty ()) {
-            while (!processes.isEmpty () && processes.peek ().getArrivalTime () == tick) {
-                processQueue.add (processes.poll ());
+        while (runningProcess != null || !arriving.isEmpty () || !pq.isEmpty ()) {
+            while (!arriving.isEmpty () && arriving.peek ().getArrivalTime () == tick) {
+                pq.add (arriving.poll ());
             }
 
             if (q == quantum) {
-                if (!processQueue.isEmpty ()) {
+                if (!pq.isEmpty ()) {
                     if (runningProcess != null) {
-                        processQueue.add (runningProcess);
+                        pq.add (runningProcess);
                     }
 
-                    runningProcess = processQueue.poll ();
+                    runningProcess = pq.poll ();
                     chart.addEntry (runningProcess.getID (), tick);
                     q = 0;
                 }
             }
 
-            if (runningProcess == null && !processQueue.isEmpty ()) {
-                runningProcess = processQueue.poll ();
+            if (runningProcess == null && !pq.isEmpty ()) {
+                runningProcess = pq.poll ();
                 runningProcess.receiveResponse (tick);
                 chart.addEntry (runningProcess.getID (), tick);
                 q = 0;
@@ -614,9 +501,10 @@ public class SchedulingSimulator {
                 runningProcess.executeTick(tick);
 
                 if (runningProcess.isFinished()) {
+                    chart.addData (runningProcess);
                     runningProcess = null;
 
-                    if (processes.isEmpty() && processQueue.isEmpty()) {
+                    if (arriving.isEmpty() && pq.isEmpty()) {
                         chart.addEntry (-1, tick);
                     }
                 }
@@ -626,85 +514,11 @@ public class SchedulingSimulator {
         return chart;
     }
 
-    private static GanttChart priority (Queue<Process> processes) {
-        System.out.println ("Simulating priority (non-preemtive) algorithm...");
-        Process runningProcess = null;
-        LinkedList<Process> processQueue = new LinkedList<> ();
-        GanttChart chart = new GanttChart (0);
-
-        int tick = 0;
-
-        int i = 0;
-        Process temp;
-        ListIterator<Process> it;
-
-        while (runningProcess != null || !processes.isEmpty () || !processQueue.isEmpty ()) {
-            while (!processes.isEmpty () && processes.peek ().getArrivalTime () == tick) {
-                temp = processes.poll ();
-                it = processQueue.listIterator ();
-
-                while (it.hasNext () && temp.getPriority () >= it.next ().getPriority ()) {
-                    i++;
-                }
-
-                it = processQueue.listIterator ();
-
-                while (i > 0) {
-                    it.next ();
-                    i--;
-                }
-
-                it.add (temp);
-            }
-
-            if (runningProcess == null && !processQueue.isEmpty ()) {
-                runningProcess = processQueue.poll ();
-                runningProcess.receiveResponse (tick);
-                chart.addEntry (runningProcess.getID (), tick);
-            }
-
-            tick++;
-
-            if (runningProcess != null) {
-                runningProcess.executeTick(tick);
-                if (runningProcess.isFinished()) {
-                    runningProcess = null;
-                    if (processes.isEmpty() && processQueue.isEmpty()) {
-                        chart.addEntry (-1, tick);
-                    }
-                }
-            }
-        }
-
-        return chart;
-    }
-
-    private static void printAnalytics (GanttChart chart, ArrayList<Process> processes, PrintStream output) {
+    private static void printAnalytics (GanttChart chart, PrintStream output) {
         output.println ("Gantt Chart Visualization:");
         chart.printChart (output);
 
         output.println ();
-
-        int wait = 0;
-        int turnaround = 0;
-        int response = 0;
-        float nTurnaround = 0;
-        final float numProcesses = processes.size ();
-
-        int tempTurnaround;
-
-        for (Process p: processes) {
-            wait += p.getWaitTime ();
-            turnaround += p.getTurnaroundTime ();
-            nTurnaround += p.getNormalizedTurnaroundTime ();
-            response += p.getResponseTime ();
-        }
-
-        output.println ("Perfomance Metrics:");
-        output.printf ("Average Waiting Time: %.3f%s", wait / numProcesses, "\n");
-        output.printf ("Average Turnaround Time: %.3f%s", turnaround / numProcesses, "\n");
-        output.printf ("Average Normalized Turnaround Time: %.3f%s", nTurnaround / numProcesses, "\n");
-        output.printf ("Average Response Time: %.3f%s", response / numProcesses, "\n");
     }
 
     private static int numDigits (int num) {
@@ -718,7 +532,7 @@ public class SchedulingSimulator {
         return digits;
     }
 
-    private static class Process implements Comparable<Process> {
+    private static final class Process implements Comparable<Process> {
         private final int pid, arrival, cpuBurst, priority;
 
         private int responded, finished, remainingBurst;
@@ -837,13 +651,16 @@ public class SchedulingSimulator {
         }
     }
     
-    private static class GanttChart {
-        private LinkedList<Entry> entries;
+    private static final class GanttChart {
+        private final LinkedList<Entry> entries;
 
-        private StringBuilder processesFormatter, timeFormatter;
+        private final StringBuilder processesFormatter, timeFormatter;
         private String[] processes;
         private Integer[] times;
         private boolean modified;
+
+        private int wait, turnaround, response, numProcesses;
+        private float nTurnaround = 0;
 
         private final int quantum;
 
@@ -851,9 +668,11 @@ public class SchedulingSimulator {
             entries = new LinkedList<> ();
             processesFormatter = new StringBuilder ();
             timeFormatter = new StringBuilder ();
-            processes = new String[0];
-            times = new Integer[0];
             modified = false;
+            wait = 0;
+            turnaround = 0;
+            response = 0;
+            numProcesses = 0;
             this.quantum = quantum;
         }
 
@@ -864,15 +683,21 @@ public class SchedulingSimulator {
             modified = true;
         }
 
+        public void addData (Process p) {
+            if (p.isFinished ()) {
+                numProcesses++;
+                wait += p.getWaitTime ();
+                turnaround += p.getTurnaroundTime ();
+                nTurnaround += p.getNormalizedTurnaroundTime ();
+                response += p.getResponseTime ();
+            }
+        }
+        
         public boolean isFinished () {
             if (entries.isEmpty ()) {
                 return false;
             }
             return entries.peekLast ().pid == -1;
-        }
-
-        public boolean isRoundRobin () {
-            return quantum > 0;
         }
 
         public int getQuantum () {
@@ -884,11 +709,7 @@ public class SchedulingSimulator {
                 int maxIDDigits = 2;
                 int maxTimeDigits = 1;
 
-                if (isFinished ()) {
-                    processes = new String[(entries.size () * 2) - 1];
-                } else {
-                    processes = new String[entries.size () * 2];
-                }
+                processes = new String[(entries.size () * 2) - ((isFinished ()) ? 1 : 0)];
 
                 times = new Integer[entries.size ()];
 
@@ -961,6 +782,14 @@ public class SchedulingSimulator {
             output.println ();
             output.printf (timeFormatter.toString (), (Object[]) times);
             output.println ();
+
+            if (isFinished ()) {
+                output.println ("Perfomance Metrics:");
+                output.printf ("Average Waiting Time: %.3f%s", wait / (float) numProcesses, "\n");
+                output.printf ("Average Turnaround Time: %.3f%s", turnaround / (float) numProcesses, "\n");
+                output.printf ("Average Normalized Turnaround Time: %.3f%s", nTurnaround / numProcesses, "\n");
+                output.printf ("Average Response Time: %.3f%s", response / (float) numProcesses, "\n");
+            }
         }
 
         private class Entry {

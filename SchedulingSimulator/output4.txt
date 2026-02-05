@@ -4,54 +4,54 @@ First-Come-First-Serve (FCFS)
 Gantt Chart Visualization:
 |  P1 |  P2 |  P3 |  P4 |  P5 |  P6 |  P7 |  P8 |  P9 | P10 | P11 | P12 | P13 | P14 | P15 |
 0     8     12    21    26    29    35    40    47    51    55    57    64    72    81    86
-
 Perfomance Metrics:
-Average Waiting Time: 30.133
-Average Turnaround Time: 35.867
-Average Normalized Turnaround Time: 8.062
-Average Response Time: 30.133
+Average Waiting Time: 28.667
+Average Turnaround Time: 34.400
+Average Normalized Turnaround Time: 7.048
+Average Response Time: 28.667
+
 
 Shortest Process Next (SPN)
 Gantt Chart Visualization:
-|  P1 |  P5 |  P2 |  P9 | P11 | P10 |  P4 |  P7 | P15 |  P6 |  P8 | P12 | P13 |  P3 | P14 |
+|  P1 |  P5 |  P2 |  P9 | P11 | P10 |  P4 | P15 |  P7 |  P6 | P12 |  P8 | P13 | P14 |  P3 |
 0     8     11    15    19    21    25    30    35    40    46    53    60    68    77    86
-
 Perfomance Metrics:
-Average Waiting Time: 30.133
-Average Turnaround Time: 35.867
-Average Normalized Turnaround Time: 8.062
-Average Response Time: 30.133
+Average Waiting Time: 22.667
+Average Turnaround Time: 28.400
+Average Normalized Turnaround Time: 4.398
+Average Response Time: 22.667
+
 
 Shortest Remaining Time (SRT)
 Gantt Chart Visualization:
-|  P1 |  P2 |  P4 |  P5 |  P4 |  P9 | P11 | P10 |  P7 | P15 |  P6 |  P1 |  P8 | P12 | P13 |  P3 | P14 |
+|  P1 |  P2 |  P4 |  P5 |  P4 |  P9 | P11 | P10 |  P7 | P15 |  P6 |  P8 |  P1 | P12 | P13 | P14 |  P3 |
 0     1     5     6     9     13    17    19    23    28    33    39    46    53    60    68    77    86
-
 Perfomance Metrics:
-Average Waiting Time: 30.133
-Average Turnaround Time: 35.867
-Average Normalized Turnaround Time: 8.062
-Average Response Time: 30.133
+Average Waiting Time: 21.467
+Average Turnaround Time: 27.200
+Average Normalized Turnaround Time: 3.871
+Average Response Time: 18.267
+
 
 Round Robin (RR) (quantum = 5)
 Gantt Chart Visualization:
 |  P1 |  P2 |  P3 |  P4 |  P1 |  P5 |  P6 |  P7 |  P8 |  P9 |  P3 | P10 | P11 | P12 | P13 | P14 | P15 |  P6 |  P8 | P12 | P13 | P14 |
 0     5     9     14    19    22    25    30    35    40    44    48    52    54    59    64    69    74    75    77    79    82    86
-
 Perfomance Metrics:
-Average Waiting Time: 30.133
-Average Turnaround Time: 35.867
-Average Normalized Turnaround Time: 8.062
-Average Response Time: 30.133
+Average Waiting Time: 35.133
+Average Turnaround Time: 40.867
+Average Normalized Turnaround Time: 7.633
+Average Response Time: 21.467
+
 
 Priority (Non-Preemptive)
 Gantt Chart Visualization:
-|  P1 |  P2 |  P7 |  P8 | P14 | P15 |  P5 | P10 | P12 |  P4 |  P6 | P13 |  P9 |  P3 | P11 |
-0     8     12    17    24    33    38    41    45    52    57    63    71    75    84    86
-
+|  P1 |  P2 |  P7 |  P8 | P14 | P15 | P12 |  P5 | P10 | P13 |  P6 |  P4 |  P9 | P11 |  P3 |
+0     8     12    17    24    33    38    45    48    52    60    66    71    75    77    86
 Perfomance Metrics:
-Average Waiting Time: 30.133
-Average Turnaround Time: 35.867
-Average Normalized Turnaround Time: 8.062
-Average Response Time: 30.133
+Average Waiting Time: 30.533
+Average Turnaround Time: 36.267
+Average Normalized Turnaround Time: 8.111
+Average Response Time: 30.533
+
 
